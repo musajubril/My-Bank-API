@@ -39,17 +39,17 @@ export class AppController {
     return this.appService.findAll(req.user.userId);
   }
   @UseGuards(JwtAuthGuard)
-  @Get('transactions/transfer')
+  @Get('transfer')
   getAllTransfers(@Request() req): Promise<Transactions[]> {
     return this.transferService.findAll(req.user.userId);
   }
   @UseGuards(JwtAuthGuard)
-  @Get('transactions/deposit')
+  @Get('deposit')
   getAllDeposits(@Request() req): Promise<Transactions[]> {
     return this.depositService.findAll(req.user.userId);
   }
   @UseGuards(JwtAuthGuard)
-  @Get('transactions/withdrawal')
+  @Get('withdrawal')
   getAllWithdrawal(@Request() req): Promise<Transactions[]> {
     return this.withdrawalService.findAll(req.user.userId);
   }
@@ -85,7 +85,7 @@ export class AppController {
     return this.transferService.makeTransfer(transfer, req.user.userId);
   }
   @UseGuards(JwtAuthGuard)
-  @Post('withdraw')
+  @Post('withdrawal')
   makeWithdrawal(
     @Body() body: WithdrawalInput,
     @Request() req,
@@ -101,7 +101,7 @@ export class AppController {
     };
     return this.withdrawalService.makeWithdrawal(withdrawal, req.user.userId);
   }
-  @Post('auth/register')
+  @Post('register')
   async register(@Body() user: UserInput) {
     const newUser: AddUserType = {
       ...user,
@@ -121,11 +121,11 @@ export class AppController {
     return req.user;
   }
 
-  @Get('users')
-  async getUsers() {
-    return this.usersService.getUsers();
-  }
-  @Post('auth/login')
+  // @Get('users')
+  // async getUsers() {
+  //   return this.usersService.getUsers();
+  // }
+  @Post('login')
   async getUser(@Body() body: LoginInput) {
     return this.usersService.signIn(body);
   }
