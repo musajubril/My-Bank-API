@@ -35,22 +35,30 @@ export class AppController {
   ) {}
   @UseGuards(JwtAuthGuard)
   @Get('transactions')
-  getAllTransactions(@Request() req): Promise<Transactions[]> {
+  getAllTransactions(
+    @Request() req,
+  ): Promise<{ data: Transactions[]; message: string }> {
     return this.appService.findAll(req.user.userId);
   }
   @UseGuards(JwtAuthGuard)
   @Get('transfer')
-  getAllTransfers(@Request() req): Promise<Transactions[]> {
+  getAllTransfers(
+    @Request() req,
+  ): Promise<{ data: Transactions[]; message: string }> {
     return this.transferService.findAll(req.user.userId);
   }
   @UseGuards(JwtAuthGuard)
   @Get('deposit')
-  getAllDeposits(@Request() req): Promise<Transactions[]> {
+  getAllDeposits(
+    @Request() req,
+  ): Promise<{ data: Transactions[]; message: string }> {
     return this.depositService.findAll(req.user.userId);
   }
   @UseGuards(JwtAuthGuard)
   @Get('withdrawal')
-  getAllWithdrawal(@Request() req): Promise<Transactions[]> {
+  getAllWithdrawal(
+    @Request() req,
+  ): Promise<{ data: Transactions[]; message: string }> {
     return this.withdrawalService.findAll(req.user.userId);
   }
   @UseGuards(JwtAuthGuard)
@@ -58,7 +66,7 @@ export class AppController {
   makeDeposit(
     @Body() body: DepositInput,
     @Request() req,
-  ): Promise<Transactions> {
+  ): Promise<{ data: Transactions; message: string }> {
     const deposit: MakeTransactionType = {
       ...body,
       type: 'deposit',
@@ -75,7 +83,7 @@ export class AppController {
   makeTransfer(
     @Body() body: TransferInput,
     @Request() req,
-  ): Promise<Transactions> {
+  ): Promise<{ data: Transactions; message: string }> {
     const transfer: MakeTransactionType = {
       ...body,
       userId: req.user.userId,
@@ -89,7 +97,7 @@ export class AppController {
   makeWithdrawal(
     @Body() body: WithdrawalInput,
     @Request() req,
-  ): Promise<Transactions> {
+  ): Promise<{ data: Transactions; message: string }> {
     const withdrawal: MakeTransactionType = {
       ...body,
       type: 'withdrawal',

@@ -14,7 +14,13 @@ export class AppService {
     @InjectModel(Transactions.name)
     private transactionsModel: Model<TransactionsDocument>,
   ) {}
-  async findAll(userId: string): Promise<Transactions[]> {
-    return this.transactionsModel.find({ userId }).exec();
+  async findAll(
+    userId: string,
+  ): Promise<{ data: Transactions[]; message: string }> {
+    const transactions = await this.transactionsModel.find({ userId }).exec();
+    return {
+      data: transactions,
+      message: 'All Transactions found successfully',
+    };
   }
 }

@@ -14,14 +14,22 @@ export class WithdrawalService {
     @InjectModel(Transactions.name)
     private transactionsModel: Model<TransactionsDocument>,
   ) {}
-  async findAll(userId: string): Promise<Transactions[]> {
-    return this.transactionsModel.find({ type: 'withdrawal', userId }).exec();
+  async findAll(
+    userId: string,
+  ): Promise<{ data: Transactions[]; message: string }> {
+    const withdrawals = await this.transactionsModel
+      .find({ type: 'withdrawal', userId })
+      .exec();
+    return {
+      data: withdrawals,
+      message: '',
+    };
   }
 
   async makeWithdrawal(
     makeTransactionType: MakeTransactionType,
     userId: string,
-  ): Promise<Transactions> {
+  ): Promise<{ data: Transactions; message: string }> {
     const user = await this.userModel.findById({ _id: userId });
     await this.userModel
       .findByIdAndUpdate(
@@ -45,7 +53,11 @@ export class WithdrawalService {
         },
       )
       .exec();
-    const withdrawal = new this.transactionsModel(makeTransactionType);
-    return withdrawal.save();
+    const data = new this.transactionsModel(makeTransactionType);
+    await data.save();
+    return {
+      data,
+      message: 'Deposit made successfully',
+    };
   }
 }

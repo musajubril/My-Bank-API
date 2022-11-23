@@ -15,14 +15,22 @@ export class DepositService {
     private transactionsModel: Model<TransactionsDocument>,
   ) {}
 
-  async findAll(userId: string): Promise<Transactions[]> {
-    return this.transactionsModel.find({ type: 'deposit', userId }).exec();
+  async findAll(
+    userId: string,
+  ): Promise<{ data: Transactions[]; message: string }> {
+    const deposit = await this.transactionsModel
+      .find({ type: 'deposit', userId })
+      .exec();
+    return {
+      data: deposit,
+      message: 'All Deposits returned successfully',
+    };
   }
 
   async makeDeposit(
     makeTransactionType: MakeTransactionType,
     userId: string,
-  ): Promise<Transactions> {
+  ): Promise<{ data: Transactions; message: string }> {
     const user = await this.userModel.findById({ _id: userId });
     await this.userModel
       .findByIdAndUpdate(
@@ -46,7 +54,11 @@ export class DepositService {
         },
       )
       .exec();
-    const deposit = new this.transactionsModel(makeTransactionType);
-    return deposit.save();
+    const data = new this.transactionsModel(makeTransactionType);
+    await data.save();
+    return {
+      data,
+      message: 'Deposit made successfully',
+    };
   }
 }

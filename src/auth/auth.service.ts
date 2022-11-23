@@ -21,13 +21,31 @@ export class AuthService {
       created: user.created,
     };
     return {
+      message: 'Login Successful',
       access_token: this.jwtService.sign(payload),
     };
   }
 
   async register(user: AddUserType) {
     user.pin = await bcrypt.hash(user.pin, 10);
-    const newUser = new this.userModel(user);
-    return newUser.save();
+    const checkUser = await this.userModel
+      .findOne({ account: user.account, mobile_number: user.mobile_number })
+      .exec();
+    if (checkUser) {
+      return { message: 'A User Exists with that Phone Number' };
+    } else {
+      const newUser = new this.userModel(user);
+      await newUser.save();
+      const payload = {
+        acount: user.account,
+        full_name: user.full_name,
+        mobile_number: user.mobile_number,
+        created: user.created,
+      };
+      return {
+        message: 'Account Created Successfully',
+        access_token: this.jwtService.sign(payload),
+      };
+    }
   }
 }
