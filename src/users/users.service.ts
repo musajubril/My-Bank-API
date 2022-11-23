@@ -34,7 +34,10 @@ export class UsersService {
           mobile_number: user.mobile_number,
         };
         const token = this.jwtService.sign(payload);
-        return token;
+        return {
+          message: 'Login Successful',
+          access_token: token,
+        };
       } else {
         return { message: 'Passwords do not match' };
       }
