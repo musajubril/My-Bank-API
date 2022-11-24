@@ -32,33 +32,40 @@ export class TransferService {
     userId: string,
   ): Promise<{ data: Transactions; message: string }> {
     const user = await this.userModel.findById({ _id: userId });
-    await this.userModel
-      .findByIdAndUpdate(
-        { _id: userId },
-        {
-          $set: {
-            amount_transferred:
-              Number(user.amount_transferred) +
-              Number(makeTransactionType.amount),
-            amount_in_account:
-              Number(user.amount_in_account) -
-              Number(makeTransactionType.amount),
+    if (Number(user.amount_in_account) < Number(makeTransactionType.amount)) {
+      return {
+        message: 'Insufficient funds',
+        data: makeTransactionType,
+      };
+    } else {
+      await this.userModel
+        .findByIdAndUpdate(
+          { _id: userId },
+          {
+            $set: {
+              amount_transferred:
+                Number(user.amount_transferred) +
+                Number(makeTransactionType.amount),
+              amount_in_account:
+                Number(user.amount_in_account) -
+                Number(makeTransactionType.amount),
+            },
           },
-        },
-        {
-          new: true,
-          runValidators: true,
-          upsert: true,
-          returnOriginal: false,
-          returnNewDocument: true,
-        },
-      )
-      .exec();
-    const data = new this.transactionsModel(makeTransactionType);
-    await data.save();
-    return {
-      data,
-      message: 'Deposit made successfully',
-    };
+          {
+            new: true,
+            runValidators: true,
+            upsert: true,
+            returnOriginal: false,
+            returnNewDocument: true,
+          },
+        )
+        .exec();
+      const data = new this.transactionsModel(makeTransactionType);
+      await data.save();
+      return {
+        data,
+        message: 'Deposit made successfully',
+      };
+    }
   }
 }

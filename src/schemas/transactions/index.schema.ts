@@ -21,9 +21,6 @@ export class Transactions {
   bank: string;
 
   @Prop()
-  user: string;
-
-  @Prop()
   type: string;
 
   @Prop()
