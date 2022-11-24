@@ -5,6 +5,7 @@ import {
   UseGuards,
   Request,
   Body,
+  Param,
 } from '@nestjs/common';
 import { AppService } from './app.service';
 import { AuthService } from './auth/auth.service';
@@ -129,12 +130,16 @@ export class AppController {
     return req.user;
   }
 
-  // @Get('users')
-  // async getUsers() {
-  //   return this.usersService.getUsers();
-  // }
+  @Get('users')
+  async getUsers() {
+    return this.usersService.getUsers();
+  }
+  @Get('user/:account')
+  async getUser(@Request() req, @Param('account') account: string) {
+    return this.usersService.getUser(account);
+  }
   @Post('login')
-  async getUser(@Body() body: LoginInput) {
+  async login(@Body() body: LoginInput) {
     return this.usersService.signIn(body);
   }
 }

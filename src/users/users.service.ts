@@ -2,7 +2,7 @@ import { Injectable, Logger } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { User, UserDocument } from 'src/schemas/users/index.schema';
-import { AddUserType } from '../dtos/user.dto';
+import { AddUserType, ReturnUserType } from '../dtos/user.dto';
 import * as bcrypt from 'bcrypt';
 import { LoginInput } from '../inputs/user-input';
 import { JwtService } from '@nestjs/jwt';
@@ -15,11 +15,17 @@ export class UsersService {
   ) {}
 
   async findOne(account: string): Promise<User | undefined> {
-    Logger.log(this.userModel.findOne({ account }).exec());
     return this.userModel.findOne({ account }).exec();
   }
   async getUsers(): Promise<User[]> {
     return this.userModel.find().exec();
+  }
+  async getUser(account: string): Promise<{ data: User; message: string }> {
+    const data = await this.userModel.findOne({ account }).exec();
+    return {
+      data,
+      message: 'User retrieved successfully',
+    };
   }
   async signIn(body: LoginInput): Promise<any> {
     const { account, pin } = body;
