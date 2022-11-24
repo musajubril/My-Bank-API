@@ -20,6 +20,7 @@ export class DepositService {
   ): Promise<{ data: Transactions[]; message: string }> {
     const deposit = await this.transactionsModel
       .find({ type: 'deposit', userId })
+      .sort({ created: -1 })
       .exec();
     return {
       data: deposit,

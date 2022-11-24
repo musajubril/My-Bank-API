@@ -72,8 +72,8 @@ export class AppController {
       ...body,
       type: 'deposit',
       created: new Date(),
-      account: '9014472772',
-      full_name: 'Musa Jubril',
+      account: req.user.account,
+      full_name: req.user.full_name,
       bank: 'My Bank',
       userId: req.user.userId,
     };
@@ -104,8 +104,8 @@ export class AppController {
       type: 'withdrawal',
       created: new Date(),
       userId: req.user.userId,
-      account: '9014472772',
-      full_name: 'Musa Jubril',
+      account: req.user.account,
+      full_name: req.user.full_name,
       bank: 'My Bank',
     };
     return this.withdrawalService.makeWithdrawal(withdrawal, req.user.userId);
@@ -129,11 +129,12 @@ export class AppController {
   getProfile(@Request() req) {
     return req.user;
   }
-
-  @Get('users')
-  async getUsers() {
-    return this.usersService.getUsers();
+  @UseGuards(JwtAuthGuard)
+  @Get('user')
+  getMyAccount(@Request() req) {
+    return this.usersService.getMyAccount(req.user.userId);
   }
+  @UseGuards(JwtAuthGuard)
   @Get('user/:account')
   async getUser(@Request() req, @Param('account') account: string) {
     return this.usersService.getUser(account);

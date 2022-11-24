@@ -17,7 +17,10 @@ export class AppService {
   async findAll(
     userId: string,
   ): Promise<{ data: Transactions[]; message: string }> {
-    const transactions = await this.transactionsModel.find({ userId }).exec();
+    const transactions = await this.transactionsModel
+      .find({ userId })
+      .sort({ created: -1 })
+      .exec();
     return {
       data: transactions,
       message: 'All Transactions found successfully',

@@ -8,6 +8,10 @@ import { JwtStrategy } from './jwt.strategy';
 import { MongooseModule } from '@nestjs/mongoose';
 import { User, UserSchema } from 'src/schemas/users/index.schema';
 import { UsersService } from '../users/users.service';
+import {
+  Transactions,
+  TransactionsSchema,
+} from '../schemas/transactions/index.schema';
 
 @Module({
   imports: [
@@ -16,7 +20,10 @@ import { UsersService } from '../users/users.service';
     JwtModule.register({
       secret: jwtConstants.secret,
     }),
-    MongooseModule.forFeature([{ name: User.name, schema: UserSchema }]),
+    MongooseModule.forFeature([
+      { name: User.name, schema: UserSchema },
+      { name: Transactions.name, schema: TransactionsSchema },
+    ]),
   ],
   providers: [AuthService, JwtStrategy, UsersService],
   exports: [AuthService],

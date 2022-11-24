@@ -19,7 +19,8 @@ export class TransferService {
     userId: string,
   ): Promise<{ data: Transactions[]; message: string }> {
     const transfers = await this.transactionsModel
-      .find({ type: 'transfer', userId })
+      .find({ type: ['transfer', 'transfer_to_me'], userId })
+      .sort({ created: -1 })
       .exec();
     return {
       data: transfers,
@@ -31,7 +32,11 @@ export class TransferService {
     makeTransactionType: MakeTransactionType,
     userId: string,
   ): Promise<{ data: Transactions; message: string }> {
+    const isMyBank = makeTransactionType.bank === 'My Bank';
     const user = await this.userModel.findById({ _id: userId });
+    const myBankUser = await this.userModel
+      .findOne({ account: makeTransactionType.account })
+      .exec();
     if (Number(user.amount_in_account) < Number(makeTransactionType.amount)) {
       return {
         message: 'Insufficient funds',
@@ -60,11 +65,44 @@ export class TransferService {
           },
         )
         .exec();
+      isMyBank &&
+        (await this.userModel
+          .findOneAndUpdate(
+            { account: makeTransactionType.account },
+            {
+              $set: {
+                amount_deposited:
+                  Number(myBankUser.amount_deposited) +
+                  Number(makeTransactionType.amount),
+                amount_in_account:
+                  Number(myBankUser.amount_in_account) +
+                  Number(makeTransactionType.amount),
+              },
+            },
+            {
+              new: true,
+              runValidators: true,
+              upsert: true,
+              returnOriginal: false,
+              returnNewDocument: true,
+            },
+          )
+          .exec());
+      const myBankTransfer =
+        isMyBank &&
+        new this.transactionsModel({
+          ...makeTransactionType,
+          type: 'transfer_to_me',
+          userId: myBankUser._id,
+          account: user.account,
+          full_name: user.full_name,
+        });
       const data = new this.transactionsModel(makeTransactionType);
       await data.save();
+      isMyBank && (await myBankTransfer.save());
       return {
         data,
-        message: 'Deposit made successfully',
+        message: 'Transfer successful',
       };
     }
   }

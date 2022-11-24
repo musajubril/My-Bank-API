@@ -6,11 +6,17 @@ import { AddUserType, ReturnUserType } from '../dtos/user.dto';
 import * as bcrypt from 'bcrypt';
 import { LoginInput } from '../inputs/user-input';
 import { JwtService } from '@nestjs/jwt';
+import {
+  Transactions,
+  TransactionsDocument,
+} from '../schemas/transactions/index.schema';
 
 @Injectable()
 export class UsersService {
   constructor(
     @InjectModel(User.name) private userModel: Model<UserDocument>,
+    @InjectModel(Transactions.name)
+    private transactionsModel: Model<TransactionsDocument>,
     private jwtService: JwtService,
   ) {}
 
@@ -20,10 +26,30 @@ export class UsersService {
   async getUsers(): Promise<User[]> {
     return this.userModel.find().exec();
   }
-  async getUser(account: string): Promise<{ data: User; message: string }> {
-    const data = await this.userModel.findOne({ account }).exec();
+  async getMyAccount(
+    userId: string,
+  ): Promise<{ data: User; message: string; history: Transactions[] }> {
+    const data = await this.userModel.findById({ _id: userId }).exec();
+    const history = await this.transactionsModel.find({ userId }).exec();
     return {
       data,
+      message: "User's data retrieved successfully",
+      history: history.slice(0, 5),
+    };
+  }
+  async getUser(account: string): Promise<{
+    data: {
+      full_name: string;
+      account: string;
+    };
+    message: string;
+  }> {
+    const data = await this.userModel.findOne({ account }).exec();
+    return {
+      data: {
+        full_name: data.full_name,
+        account: data.account,
+      },
       message: 'User retrieved successfully',
     };
   }

@@ -19,6 +19,7 @@ export class WithdrawalService {
   ): Promise<{ data: Transactions[]; message: string }> {
     const withdrawals = await this.transactionsModel
       .find({ type: 'withdrawal', userId })
+      .sort({ created: -1 })
       .exec();
     return {
       data: withdrawals,
@@ -63,7 +64,7 @@ export class WithdrawalService {
       await data.save();
       return {
         data,
-        message: 'Deposit made successfully',
+        message: 'Withdrawal successful',
       };
     }
   }
